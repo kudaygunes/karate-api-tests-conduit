@@ -1,0 +1,4 @@
+target/karate-reports
+target/surefire-reports
+karate-reports*
+surefire-reports*
