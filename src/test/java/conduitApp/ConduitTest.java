@@ -20,5 +20,4 @@ class ConduitTest {
     Karate testTags() {
         return Karate.run().tags("@create").relativeTo(getClass());
     }
-
 }

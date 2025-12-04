@@ -6,7 +6,7 @@
 Feature: Tests for home page
 
 Background: Define URL
-    Given url 'https://conduit-api.bondaracademy.com/api'
+    Given url apiUrl
 
     # Scenario: Verify that the tags endpoint returns a collection containing expected tags
     # Purpose: Ensures tag data is present and searchable
