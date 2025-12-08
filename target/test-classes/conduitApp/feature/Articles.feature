@@ -7,7 +7,7 @@ Feature: Articles
     Background: Define URL and authenticate
         # url is taken from a variable in karate-config file
         Given url apiUrl
-               
+
     # Scenario: Test article creation with full validation of response fields
     # Purpose: Ensures articles are created successfully with correct data structure and values
     # Validates: POST /articles returns 201, response contains all input fields correctly
@@ -24,7 +24,6 @@ Feature: Articles
     # Scenario: Test complete article lifecycle: create, retrieve, and delete
     # Purpose: Validates article CRUD operations, authentication, and deletion verification
     # Validates: POST creates article (201), GET retrieves it, DELETE removes it (204), GET returns 404 after deletion
-    @create
     Scenario: Delete an article
         # Create article with unique title and capture slug for later use
         Given path 'articles'

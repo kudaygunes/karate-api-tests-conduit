@@ -14,7 +14,7 @@ Background: Define URL
         Given path 'tags'
         When method GET
         Then status 200
-        And match response.tags contains ['QA Skills', 'Zoom']
+        And match response.tags contains ['GitHub', 'Zoom']
 
     # Scenario: Verify that unexpected tags are not in the tags collection
     # Purpose: Ensures data integrity and validates negative test cases
@@ -58,3 +58,76 @@ Background: Define URL
         When method GET
         Then status 200
         And match response.articlesCount == 10
+
+    # Scenario: Verify that the response is array, articlesCount is 10
+    # Purpose: Ensures response is in correct format
+    Scenario: Check response format
+        Given params {limit: 10, offset: 0}
+        Given path 'articles'
+        When method GET
+        Then status 200
+        And match response == {"articles": "#array", "articlesCount": 10}
+
+    # Scenario: Verify article is created at specific year
+    # Purpose: Checks newly created articles is in correct year
+    Scenario: Check year
+        Given params {limit: 10, offset: 0}
+        Given path 'articles'
+        When method GET
+        Then status 200
+        And match response.articles[0].createdAt contains '2025'
+
+    # Scenario: Check at least 1 bio property is null
+    Scenario: Check bio is null
+        Given params {limit: 10, offset: 0}
+        Given path 'articles'
+        When method GET
+        Then status 200
+        And match response.articles[*].author.bio contains null
+
+    # Scenario: Check every following property is false
+    Scenario: Check following property
+        Given params {limit: 10, offset: 0}
+        Given path 'articles'
+        When method GET
+        Then status 200
+        And match each response..following == false
+
+
+    # Scenario: Check bio property is either null or string
+    Scenario: Check bio property either available, if yes string or null. 
+        Given params {limit: 10, offset: 0}
+        Given path 'articles'
+        When method GET
+        Then status 200
+        And match each response..bio == '##string'
+       
+    # Scenario: Check all property types as schema validation. Used global time validation function (helpers/timeValidator)    
+    @homepage
+    Scenario: Check bio property either available, if yes string or null. 
+        * def timeValidator = read('classpath:helpers/timeValidator.js')
+        * def urlValidator = read('classpath:helpers/urlValidator.js')
+        Given params {limit: 10, offset: 0}
+        Given path 'articles'
+        When method GET
+        Then status 200
+        And match each response.articles ==
+        """
+        {
+            "slug": "#string",
+            "title": "#string",
+            "description": "#string",
+            "body": "#string",
+            "tagList": "#array",
+            "createdAt": "#? timeValidator(_)",
+            "updatedAt": "#? timeValidator(_)",
+            "favorited": '#boolean',
+            "favoritesCount": '#number',
+            "author": {
+                "username": "#string",
+                "bio": "##string",
+                "image": "#string",
+                "following": '#boolean'
+            }
+        }
+        """
