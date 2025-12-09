@@ -7,27 +7,33 @@ Feature: Articles
     Background: Define URL and authenticate
         # url is taken from a variable in karate-config file
         Given url apiUrl
+        * def articleRequestBody = read('classpath:conduitApp/json/articleRequests.json')
+        * def dataGenerator = Java.type('helpers.DataGenerator')
+        * set articleRequestBody.article.title = dataGenerator.getRandomArticleValues().title
+        * set articleRequestBody.article.description = dataGenerator.getRandomArticleValues().description
+        * set articleRequestBody.article.body = dataGenerator.getRandomArticleValues().body
 
     # Scenario: Test article creation with full validation of response fields
     # Purpose: Ensures articles are created successfully with correct data structure and values
     # Validates: POST /articles returns 201, response contains all input fields correctly
+
     Scenario: Create an article
         Given path 'articles'
-        And request {"article": {"title": "Warhammer 40000","description": "İmparatorla alakali","body": "İmparator korur","tagList": ["warhammer40000, imparator"]}}
+        And request articleRequestBody
         When method POST
         Then status 201
-        And match response.article.title == 'Warhammer 40000'
-        And match response.article.description == 'İmparatorla alakali'
-        And match response.article.body == 'İmparator korur'
-        And match response.article.tagList == ['warhammer40000, imparator']
+        And match response.article.title == articleRequestBody.article.title
+        And match response.article.description == articleRequestBody.article.description
+        And match response.article.body == articleRequestBody.article.body
 
     # Scenario: Test complete article lifecycle: create, retrieve, and delete
     # Purpose: Validates article CRUD operations, authentication, and deletion verification
     # Validates: POST creates article (201), GET retrieves it, DELETE removes it (204), GET returns 404 after deletion
+    @articlerequests
     Scenario: Delete an article
         # Create article with unique title and capture slug for later use
         Given path 'articles'
-        And request {"article": {"title": "Delete Warhammer 40000","description": "İmparatorla alakali","body": "İmparator korur","tagList": ["warhammer40000, imparator"]}}
+        And request articleRequestBody
         When method POST
         Then status 201
         * def articleId = response.article.slug
@@ -37,7 +43,7 @@ Feature: Articles
         Given path 'articles'
         When method GET
         Then status 200
-        And match response.articles[0].title == 'Delete Warhammer 40000'
+        And match response.articles[0].title == articleRequestBody.article.title
 
         # Delete the article by slug and expect 204 No Content
         Given path 'articles',articleId
@@ -49,4 +55,4 @@ Feature: Articles
         Given path 'articles'
         When method GET
         Then status 200
-        And match response.articles[0].title != 'Delete Warhammer 40000'
+        And match response.articles[0].title != articleRequestBody.article.title

@@ -4,15 +4,12 @@ Feature: Sign up new user
 Background: Preconditions
     * def dataGenerator = Java.type('helpers.DataGenerator')
     * def timeValidator = read('classpath:helpers/timeValidator.js')
+    * def randomEmail = dataGenerator.getRandomEmail()
+    * def randomUsername = dataGenerator.getRandomUsername()
     Given url apiUrl
 
 # Verify successful user creation with random data created in helpers/DataGenerator.java
-@createuser
 Scenario: Create new user
-
-Given def userData = {"email": "deranzo@sumsin.com","username": "deranzo2"}
-    * def randomEmail = dataGenerator.getRandomEmail()
-    * def randomUsername = dataGenerator.getRandomUsername()
     
     Given path 'users'
     And request 
@@ -42,3 +39,28 @@ Given def userData = {"email": "deranzo@sumsin.com","username": "deranzo2"}
         }
     }
     """
+# Scenario: Data driven error message validation test
+@createuser
+Scenario Outline: Validate sign up error messages
+    
+    Given path 'users'
+    And request 
+    """
+    {
+        "user": 
+            {
+                "email": "<email>",
+                "password": "<password>",
+                "username": "<username>"
+            }
+    }
+    """
+    When method POST
+    Then status 422
+    And match response == <errorResponse>
+
+    # These scenarios can be multipled according to error messages
+    Examples:
+        | email                       | password                 | username             | errorResponse
+        | #(randomEmail)              | Deranzo123               | MulayimSert          | {"errors":{"username":["has already been taken"]}}
+        | sertmulayim@protonmail.com  | Deranzo123               |#(randomUsername)     | {"errors":{"email":["has already been taken"]}}

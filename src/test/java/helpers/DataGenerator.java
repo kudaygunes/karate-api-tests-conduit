@@ -2,6 +2,8 @@ package helpers;
 
 import com.github.javafaker.Faker;
 
+import net.minidev.json.JSONObject;
+
 /**
  * This class generates random email addresses and usernames for test scenarios.
  * It uses the Java Faker library to create realistic data.
@@ -32,5 +34,17 @@ public class DataGenerator {
         // Use Java Faker's built-in method to generate a random username
         String username = faker.name().username();
         return username;
+    }
+
+    public static JSONObject getRandomArticleValues(){
+        Faker faker = new Faker();
+        String title = faker.lordOfTheRings().character();
+        String description = faker.lordOfTheRings().location();
+        String body = faker.lordOfTheRings().character();
+        JSONObject json = new JSONObject();
+        json.put("title", title);
+        json.put("description", description);
+        json.put("body", body);
+        return json;
     }
 }
